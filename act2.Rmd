@@ -1,0 +1,154 @@
+---
+title: "Stat474W/574 Activity 2"
+author: "Dr. Islam"
+date: "Winter, Jan 20, 2022"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, comment="")
+```
+
+# Objectives
+
+- Review definitions of population and sample variances
+- Compute population variance
+- Compute sample variance
+- Compute pooled sample variance for two populations with common variance
+- Make graphical diaplays of data via boxplot and histogram
+
+# 1. Useful definitions
+
+
+**Definition 1.1** 
+
+Given a finite population ${X_1,X_2,…,X_N}$, 
+
+- the population mean, denoted by $\mu$, is defined by
+
+$$\mu=\frac{\sum_{i=1}^NX_i}{N}$$
+
+- the  population variance, denoted by $\sigma^2$ is defined by  
+
+$$\sigma^2=\frac{1}{N}\sum_{i=1}^N(X_i-\mu_x)^2$$
+
+**Definition 1.2**
+
+Given a sample ${x_1,x_2,…,x_n}$ from a population with  mean $\mu$ and variance $\sigma^2$, 
+
+- the sample mean, denoted by $\bar x$, is defined by
+
+$$\bar x =\frac{\sum_{i=1}^nx_i}{n}$$
+
+- the sample variance, denoted by $s^2$ is defined by  
+
+$$s^2=\frac{1}{n-1}\sum_{i=1}^n(x_i-\bar x)^2$$
+
+**Definition 1.3**
+
+- Given two samples ${x_1,x_2,…,x_{n_1}}$ and ${y_1,y_2,…,y_{n_2}}$ from two populations with unknown but common variance $\sigma^2$, an estimate of the common variance $\sigma^2$ is given by
+
+$s_{pooled}^2=\frac{\sum_{i=1}^{n_1}(x_i-\bar x)^2+\sum_{i=1}^{n_2}(y_i-\bar y)^2}{n_1+n_2-2}=\frac{(n_1-1)s_1^2+(n_2-1)s_2^2}{n_1+n_2-2}$
+
+where $$s_1^2=\frac{1}{n_1-1}\sum_{i=1}^{n_1}(x_i-\bar x)^2$$
+$$s_2^2=\frac{1}{n_2-1}\sum_{i=1}^{n_2}(y_i-\bar y)^2$$
+$s^2_{pooled}$ is called the pooled sample variance of the unknown but common variance $\sigma^2$ of two populations.
+
+# 2 Functions to be used
+
+- sum()
+- mean()
+- var()
+- sd()
+- length()
+- par()
+- hist()
+- boxplot()
+
+# Example 1
+
+The data below refers to a population of circumference of 7 orange trees, measured in mm, at breast height, a standard measurement in forestry.
+
+```
+209  58 203 145 201  51  75
+```
+ (a) Assign this population data values to a vector $X$
+ (b) Find the population mean of circumference of trees ($\mu$).
+ (c) Find the population variance of circumference of trees ($\sigma^2$).
+ 
+Solution
+
+There is no function in R to compute population variance $\sigma^2$. We can easily compute it via self-coding using known functions:
+ 
+```{r}
+#(a)
+X<-scan(text="209  58 203 145 201  51  75")
+N=7
+#(b)
+mu=mean(X)
+#(c)
+pop.var<-sum((X-mu)^2)/7
+```
+
+# Example 2
+
+Below is sample of creative writing score of students of a writing class, after receiving intrinsic motivation:
+
+```
+19.3 21.3 22.6 20.3 17.5 22.2 26.7 29.7 20.5 20.6 22.1 18.2 12.0 19.1 23.1
+
+```
+(a) Compute sample variance by self-coding in R.
+(b) The var() function in R computes sample variance. Compute sample variance using var() function.
+(c) verify that the results in (a) and (b) agree.
+
+
+```{r}
+x<-scan(text="19.3 21.3 22.6 20.3 17.5 22.2 26.7 29.7 20.5 20.6 22.1 18.2 12.0 19.1 23.1")
+n=length(x)
+xbar<-mean(x)
+#(a)
+samp.var<-sum((x-xbar)^2)/(n-1)
+# the function var() also compute sample variance
+#(b)
+samp.var2=var(x)
+#(c)
+c(samp.var, samp.var2)
+```
+
+# Example 3
+
+Given two samples x and y below, x from intrinsic score and y from extrinsic score, as follows:
+
+```
+x<-scan(text="16.6 26.7 17.5 24.0 22.2 29.7 19.3 19.1 12.9 12.0 19.8 12.0")
+y<-scan(text="17.2 15.0  6.1 11.8 19.2 16.8 14.8 12.3 12.0 24.0 20.7 17.2 10.9 22.1  5.0")
+```
+
+(a) Compute $s_1^2$, variance of the sample x.
+(b) Compute $s_2^2$, variance of the sample y.
+(c) Assume that the two populations of intrinsic and extrinsic scores have unknown but equal variances $\sigma^2$. Estimate pooled sample variance $s_{pooled}^2$ of the common variance $\sigma^2$.
+
+```{r}
+x<-scan(text="16.6 26.7 17.5 24.0 22.2 29.7 19.3 19.1 12.9 12.0 19.8 12.0")
+y<-scan(text="17.2 15.0  6.1 11.8 19.2 16.8 14.8 12.3 12.0 24.0 20.7 17.2 10.9 22.1  5.0")
+n1<-length(x)
+n2<-length(y)
+s1sq<-var(x)
+s2sq<-var(y)
+s2pooled<-((n1-1)*s1sq+(n2-1)*s2sq)/(n1+n2-2)
+c(s1sq,s2sq,s2pooled)
+par(mfrow=c(2,2))#row-wise fill
+boxplot(x, main="Boxplot of x")
+boxplot(y, main="Boxplot of y")
+hist(x)
+hist(y)
+par(mfcol=c(2,2))#column-wise fill
+boxplot(x, horizontal = T, main="Boxplot of x")
+boxplot(y, horizontal = T, main="Boxplot of y")
+hist(x)
+hist(y)
+```
+
+
+

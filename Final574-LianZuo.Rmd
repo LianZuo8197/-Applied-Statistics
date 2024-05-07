@@ -1,0 +1,196 @@
+---
+title: "Final574-LianZuo"
+author: "LianZuo"
+date: '`r Sys.Date()`'
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,comment="")
+```
+
+# Problem 1
+
+Test the randomness of each of the following sequences:
+
+(i) 1 2 3 4 5 6 7 4 4 4 4 4 4  
+
+(ii) T F T F T T F T T T F T T T
+
+(iii)  D D D D D D D D N N N
+
+(iv) 12 13 11 11  8 12 12  9  9  5  8  8
+
+(v) -1  1 -1 -1  1  1 -1 -1  1 -1  1 -1
+at significance level α=0.05
+
+Solution:
+```{r}
+# (i)
+x1 <- scan(text="1 2 3 4 5 6 7 4 4 4 4 4 4")
+DescTools::RunsTest(x1)
+# (ii)
+x2 <- c("T","F", "T", "F", "T","T","F", "T","T","T","F","T","T","T","F")
+DescTools::RunsTest(x2)
+# (iii)
+x3 <- c("D","D", "D", "D", "D","D","D", "D","N","N","N")
+DescTools::RunsTest(x3)
+# (iv)
+x4 <- scan(text="12 13 11 11  8 12 12  9  9  5  8  8")
+DescTools::RunsTest(x4)
+# (v)
+x5 <- scan(text="-1  1 -1 -1  1  1 -1 -1  1 -1  1 -1")
+DescTools::RunsTest(x5)
+```
+
+# Problem 2
+
+Given the following sequence of number
+
+ 9 8 9 3 9 9 6 4 9 6 3 8 8 5 8
+(i) Determine the number of runs by comparing each number with the medians.
+
+(ii) Determine the number of runs by comparing each with the previous number.
+
+Solution:
+```{r}
+x <- scan(text=" 9 8 9 3 9 9 6 4 9 6 3 8 8 5 8")
+# (i)
+med=median(x)
+run1=x>med
+run1
+run2=as.numeric(x>med)
+run2
+DescTools::RunsTest(x>med)
+# (ii)
+y <- diff(x)
+length(y)
+DescTools::RunsTest(y)
+z <- ifelse(y>0,"+", "-")
+length(z)
+z
+```
+
+# Problem 3
+
+The failure time T of a certain product follows an exponential distribution with mean of 3075 days.
+
+(a) Find the MTTF of the product.
+
+(b) Find the reliability of the product at t=2000 days.
+
+(c) Find the probability that the item will survive to its MTTF.
+
+Solution:
+```{r}
+mu=3075
+lambda=1/mu
+t=2000
+#(a)
+## MTTF=u
+MTTF=mu
+#(b) 
+##R(t)=1-F(t)
+Rt=exp(-lambda*t)
+#(c)
+RMTTF=exp(-lambda*mu)
+```
+
+# Problem 4
+
+A production system consists of three 3 independent components C1,C2,C3 whose time to failures follow exponential distributions with rates λ1=2500,λ2=2650,λ3=2475 days.
+
+Compute the probability that component C2 will fail first.
+
+Solution:
+```{r}
+lambda1=2500
+lambda2=2650
+lambda3=2475
+P2FF=lambda2/(lambda1+lambda2+lambda3)
+```
+
+# Problem 5
+
+Time to failure of a diesel engine compressor cooling system follows an Weibull distribution with a shape parameter α=2.4 and a scale parameter β=1973. Compute the following quantities:
+
+(a) Compute the reliability function and evaluate it at t=1820. 
+
+(b) Compute the mean time to failure (MTTF)
+
+(c) Compute the mean residual life at time t and evaluate it at t=MTTF.
+
+(d) Write the expression for the failure rate function and evaluate it at t=MTTF
+
+Solution:
+```{r}
+t=1820
+alpha=2.4
+beta=1973
+#(a)
+RF=exp(-(t/beta)^alpha)
+pweibull(1820, shape=alpha, scale=beta, lower.tail=F)
+#(b)
+MTTF=beta*gamma((1/alpha)+1)
+#(c)
+MRL.MTTF=(beta/alpha)*(MTTF/beta)^(alpha-1)
+#(d)
+z.MTTF=(alpha/beta)*(MTTF/beta)^(alpha-1)
+
+```
+
+# Problem 6
+
+The data vector below is assumed to come from an Weibull(α,β) distribution with α and β unknown.
+
+x=scan(text="1.51 1.41 1.75 1.32 1.30 0.84 1.17 0.65 1.26 1.14 1.74 1.00 1.29 0.89 1.81 0.67 0.63 1.20 1.92 1.33 0.64 1.59 1.09 1.49 1.72 1.39 0.97 1.67 0.73 1.58 0.95 1.12 1.01 1.28 0.96 1.10 1.47 0.83 0.66 1.08 0.52 0.50 0.87 1.43 0.38")
+
+(a) Estimate α and β using any of the R function discussed in the class. 
+
+(b) Use the estimated parameters to test if the data actually come from the hypothesized Weibull distribution.
+
+Solution:
+
+```{r}
+x <- scan(text="1.51 1.41 1.75 1.32 1.30 0.84 1.17 0.65 1.26 1.14 1.74 1.00 1.29 0.89 1.81 0.67 0.63 1.20 1.92 1.33 0.64 1.59 1.09 1.49 1.72 1.39 0.97 1.67 0.73 1.58 0.95 1.12 1.01 1.28 0.96 1.10 1.47 0.83 0.66 1.08 0.52 0.50 0.87 1.43 0.38")
+fit=MASS::fitdistr(x, "weibull",lower=0)
+fit
+ks.test(x,"pweibull", scale=fit$estimate[2], shape=fit$estimate[1])
+``` 
+
+# Problem 7
+
+Given the following ordered pair (x,y):
+
+
+x: 14.8 13.3 14.9 14.5 13.9 15.7 12.7 16.5 16.6 15.3 14.5 16.6 12.8 15.8 12.8
+y: 15.2 12.3 14.5 17.6 16.0 14.5 14.1 15.1 10.9 15.7 13.5 11.4 12.4 16.2 12.8
+
+(a) Test H0:μx−μy=0 against the two sided alternative Ha:μx−μy≠0 using any appropriate test.
+
+(b) Perform a permutation test for the above test using 5000 permutation samples.
+
+(c) What is your conclusion about the test? Use significance level α=0.05
+
+Solution:
+
+```{r}
+# (a)
+x <- scan(text="14.8 13.3 14.9 14.5 13.9 15.7 12.7 16.5 16.6 15.3 14.5 16.6 12.8 15.8 12.8")
+y <- scan(text="15.2 12.3 14.5 17.6 16.0 14.5 14.1 15.1 10.9 15.7 13.5 11.4 12.4 16.2 12.8")
+
+t.test(x,y, paired=T, alpha=0.05)
+
+# (b)
+set.seed(2022)
+difference=x-y
+n=length(difference)
+obs.diff=mean(difference)
+perm.mean.diff=c()
+for (i in 1:5000){
+  perm.mean.diff[i]=mean(difference*sample(c(-1,1),n, rep=T))
+}
+pvalue=mean(abs(perm.mean.diff)>abs(obs.diff))
+pvalue
+
+```
