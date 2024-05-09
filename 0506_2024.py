@@ -104,3 +104,51 @@ ax = fig.add_subplot(111)
 plt.boxplot(results)
 plt.show()
 
+# It seems KNeighbors Algorithm has a good result,let's do some optimazilation
+# KNN
+scaler = StandardScaler().fit(X_train)
+rescaledX = scaler.transform(X_train)
+param_grid = {'n_neighbors':[1,3,5,7,9,11,13,15,17,19,21]}
+model = KNeighborsRegressor()
+kfold = KFold(n_splits=num_folds,shuffle=True,random_state=seed)
+grid = GridSearchCV(estimator=model,
+                    param_grid=param_grid,scoring=scoring,cv=kfold)
+grid_result = grid.fit(X=rescaledX,y=Y_train)
+print('best:{} use {}'.format(grid_result.best_score_,grid_result.best_params_))
+cv_results = zip(grid_result.cv_results_['mean_test_score'],
+        grid_result.cv_results_['std_test_score'],
+        grid_result.cv_results_['params'])
+for mean,std,param in cv_results:
+    print('%f (%f) with %r' % (mean,std,param))
+
+
+# ensembles
+ensembles = { }
+ensembles['ScaledAB'] = Pipeline([('Scaler',
+                                   StandardScaler()),('AB',AdaBoostRegressor())])
+ensembles['ScaledAB-KNN'] = Pipeline([('Scaler',
+                                   StandardScaler()),('ABKNN',AdaBoostRegressor(KNeighborsRegressor(n_neighbors=21)))])
+ensembles['ScaledAB-LR'] = Pipeline([('Scaler',
+                                   StandardScaler()),('ABLR',AdaBoostRegressor
+(LinearRegression()))])
+ensembles['ScaledRFR'] = Pipeline([('Scaler',
+                                   StandardScaler()),('RFR',RandomForestRegressor())])
+ensembles['ScaledETR'] = Pipeline([('Scaler',
+                                   StandardScaler()),('ETR',ExtraTreesRegressor())])
+ensembles['ScaledGBR'] = Pipeline([('Scaler',
+                                   StandardScaler()),('RBR',GradientBoostingRegressor())])
+
+results = []
+for key in ensembles:
+    kfold = KFold(n_splits=num_folds,shuffle=True,random_state=seed)
+    cv_result = cross_val_score(ensembles[key],X_train,Y_train,cv=kfold,scoring=scoring)
+    results.append(cv_result)
+    print('%s: %f (%f)' % (key,cv_result.mean(),cv_result.std()))
+
+# boxplot comparison
+fig = plt.figure()
+fig.suptitle('Algorithm Comparison')
+ax = fig.add_subplot(111)
+plt.boxplot(results)
+ax.set_title(ensembles.keys())
+plt.show()
